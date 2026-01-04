@@ -25,6 +25,7 @@ This project simplifies chest X‑ray report sentences into lay English and then
 ```bash
 conda activate llm_proj
 python stage1_lay_en.py reports_X.csv
+```
 
 ## Stage 1b – HPC (MedGemma lay English)
 
@@ -36,6 +37,7 @@ Example command (on HPC):
 ```bash
 conda activate /usersdata/huisinyu/conda_envs/medgemma_cpu
 python medgemma_simplify_csv.py
+```
 
 ## Stage 2 – Local (NLLB Chinese)
 - **Input (Mistral path):** reports_X_translated.csv
@@ -55,6 +57,7 @@ Example commands (local):
 conda activate nllb_env
 python nllb_translate_mistral_local.py
 python nllb_translate_medgemma_local.py
+```
 
 ## Stage 3 – Local / HPC (OPUS‑MT Chinese)
 - **Input (Mistral):** lay_translation from reports_X_translated.csv
@@ -67,5 +70,5 @@ Example commands:
 ```bash
 python opus_mt_mistral.py
 python opus_mt_medgemma.py
-text
-undefined
+``
+

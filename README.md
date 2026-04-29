@@ -1,74 +1,93 @@
-# FYP: Lay Radiology Explanation + Chinese Translation
-
-This project simplifies chest X‑ray report sentences into lay English and then translates them into Simplified and Traditional Chinese for patients in Hong Kong and other Chinese‑speaking regions.
-
-## Data
-
-- **Input CSV**: `reports_X.csv`
-- **Core input column**: `sentence_en` (original English sentence)
-- **Main output columns**:
-  - `lay_translation` (Mistral lay English)
-  - `medgemma_lay_en` (MedGemma lay English)
-  - Chinese columns (NLLB / OPUS‑MT), for example:
-    - `nllb_zh_Hans_mistral`, `nllb_zh_Hant_mistral`
-    - `nllb_zh_Hans_medgemma`, `nllb_zh_Hant_medgemma`
-    - `opusmt_zh_mistral`, `opusmt_zh_medgemma`
+### Usage (Inference Example)
+To run the 2-step pipeline (Mistral simplification followed by NLLB translation):
+1. **Simplify:** Run `python mistral_real_train/mistral_lay_clear.py` to generate English lay summaries.
+2. **Translate:** Run `python src/nllb_translate_medgemma_local.py` to generate Traditional/Simplified Chinese versions.
 
 ---
 
-## Stage 1 – HPC (Mistral lay English)
+## 🛡️ Privacy Note
+The QEH dataset used in the refinement phase is anonymized. Patient identifiers, HKID numbers, and HA case numbers have been removed to comply with patient-data confidentiality standards.
 
-- **Input**: `reports_X.csv` with column `sentence_en`  
-- **Output**: `reports_X_translated.csv` with column `lay_translation`  
-- **Example command** (on HPC):
+## 📄 References
+*   `Screenshot 2026-04-29 at 15.39.43.jpg` (Repository Snapshot)
+*   `thesis_draftHere is the comprehensive, GitHub-ready Markdown for your README. It incorporates the specific file structure from your screenshots, the technical details from your thesis draft, and your Hugging Face links.
 
+***
+
+# AI-Assisted Radiology Report Simplification and Translation
+
+This repository contains the source code, prompts, and evaluation pipelines for research into simplifying and translating Chest X-ray (CXR) reports. The goal is to bridge the health literacy gap for patients in multilingual clinical settings (specifically Hong Kong) by transforming technical medical jargon into patient-friendly English, Traditional Chinese, and Simplified Chinese.
+
+## 🔗 Model Links (Hugging Face)
+The fine-tuned models developed for this project are available on Hugging Face:
+* **Mistral Finetune v1:** [jhsyjhsy/mistral_finetune_v1](https://huggingface.co/jhsyjhsy/mistral_finetune_v1)
+* **MedGemma-4B-IT Finetuned:** [jhsyjhsy/medgemma-4b-it_fyp_finetuned](https://huggingface.co/jhsyjhsy/medgemma-4b-it_fyp_finetuned)
+
+---
+
+## 📖 Project Overview
+Radiology reports serve as the primary communication tool between clinicians, but their complexity often leads to patient distress and misinterpretation. This project leverages Large Language Models (LLMs) to automate the creation of lay summaries.
+
+### Two-Phase Methodology
+1.  **Screening Phase:** Comparison of 6 candidate pipelines using the **PadChest-GR** dataset to identify the most promising architectures.
+2.  **Refinement Phase:** Fine-tuning models using **LoRA (Low-Rank Adaptation)** on a dataset of 993 anonymized CXR reports from Queen Elizabeth Hospital (QEH), collected in January 2026.
+
+---
+
+## 📂 Repository Structure
+
+The repository is organized to facilitate the reproduction of both the 1-step (direct generation) and 2-step (simplification then translation) pipelines.
+
+| Directory / File | Description |
+| :--- | :--- |
+| **`real_thing/medgemma_codes`** | Core refinement scripts for the 1-step MedGemma pipeline. |
+| ↳ `finetune_medgemma.py` | Implementation of LoRA SFT for the MedGemma-4B-IT backbone. |
+| ↳ `medgemma_pseudolabel_clear.py` | Script for generating and cleaning pseudo-labels for training. |
+| **`mistral_real_train`** | Training and layout scripts for the Mistral-7B-Instruct-v0.3 backbone. |
+| ↳ `finetune_clear_mistral_lora.py` | LoRA training implementation for Mistral English simplification. |
+| **`Mistral test set real data`** | Evaluation and inference scripts for the final held-out test set ($N=100$). |
+| ↳ `inference_test.py` | Main script for generating test set outputs. |
+| **`Padchest_pipelines`** | Phase 1 screening scripts including NLLB and Opus-MT integration. |
+| **`src`** | Global utility scripts for translation and CSV data cleaning. |
+| **`2nd round_eval`** | Scripts for English readability analysis (FK/GF metrics). |
+| ↳ `FK_GF_both.ipynb` | Notebook for Flesch-Kincaid and Gunning Fog index calculation. |
+| **`upload`** | General evaluation tools and Chinese readability metrics. |
+| ↳ `CRIE_NLLB+mistral_new.py` | Main evaluation script for CRIE 3.0 Chinese readability. |
+
+---
+
+## ⚙️ Technical Specifications
+
+### Training Parameters (LoRA)
+The models were refined to balance factual accuracy with readability using the following hyperparameters:
+
+*   **MedGemma-4B-IT:**
+    *   Rank $r = 16$, $\alpha = 32$, Dropout $= 0.1$.
+    *   3 Epochs, Learning Rate $1\times10^{-5}$.
+*   **Mistral-7B-Instruct-v0.3:**
+    *   Rank $r = 8$, $\alpha = 16$, Dropout $= 0.05$.
+    *   1.5 Epochs, Learning Rate $1\times10^{-5}$.
+
+### Patient-Centric Design
+Prompts were engineered to target specific health literacy levels in Hong Kong:
+*   **Form 3-5:** Optimized for the general adult population (9 years of compulsory education).
+*   **Primary 6:** Optimized for older adults (65+) who may have lower formal educational backgrounds.
+
+---
+
+## 📊 Evaluation & Safety
+The project employs a multi-dimensional evaluation strategy:
+1.  **Readability:** Flesch-Kincaid (FK) and Gunning Fog (GF) for English; CRIE 3.0 for Chinese.
+2.  **Safety (CRIMSON):** A clinically grounded LLM metric used to screen for hallucinations and omissions.
+3.  **Clinician Review:** Manual safety assessment by experienced radiologists for the final 100-report test set.
+
+---
+
+## 🚀 Getting Started
+
+### Installation
 ```bash
-conda activate llm_proj
-python stage1_lay_en.py reports_X.csv
-```
-
-## Stage 1b – HPC (MedGemma lay English)
-
-- **Input**: reports_500.csv with column sentence_en
-- **Output**: reports_500_medgemma.csv with column medgemma_lay_en
-
-Example command (on HPC):
-
-```bash
-conda activate /usersdata/huisinyu/conda_envs/medgemma_cpu
-python medgemma_simplify_csv.py
-```
-
-## Stage 2 – Local (NLLB Chinese)
-- **Input (Mistral path):** reports_X_translated.csv
-- **Input (MedGemma path):** reports_500_medgemma.csv
-- **Outputs (examples):**
-reports_X_translated_nllb_bi.csv with:
-nllb_zh_Hans_mistral
-nllb_zh_Hant_mistral
-
-reports_500_medgemma_nllb_bi.csv with:
-nllb_zh_Hans_medgemma
-nllb_zh_Hant_medgemma
-
-Example commands (local):
-
-```bash
-conda activate nllb_env
-python nllb_translate_mistral_local.py
-python nllb_translate_medgemma_local.py
-```
-
-## Stage 3 – Local / HPC (OPUS‑MT Chinese)
-- **Input (Mistral):** lay_translation from reports_X_translated.csv
-- **Input (MedGemma):** medgemma_lay_en from reports_500_medgemma.csv
-- **Outputs (examples):**
-reports_X_opusmt.csv with column opusmt_zh_mistral
-reports_500_medgemma_opusmt.csv with column opusmt_zh_medgemma
-Example commands:
-
-```bash
-python opus_mt_mistral.py
-python opus_mt_medgemma.py
-``
+git clone [https://github.com/jhsyjhsy/codes.git](https://github.com/jhsyjhsy/codes.git)
+cd codes
+pip install -r requirements.txt
 

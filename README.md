@@ -28,6 +28,10 @@ Radiology reports serve as the primary communication tool between clinicians, bu
 1.  **Screening Phase:** Comparison of 6 candidate pipelines using the **PadChest-GR** dataset to identify the most promising architectures.
 2.  **Refinement Phase:** Fine-tuning models using **LoRA (Low-Rank Adaptation)** on a dataset of 993 anonymized CXR reports from Queen Elizabeth Hospital (QEH), collected in January 2026.
 
+### Patient-Centric Design
+Prompts were engineered to target specific health literacy levels in Hong Kong:
+*   **Form 3-5:** Optimized for the general adult population (9 years of compulsory education).
+*   **Primary 6:** Optimized for older adults (65+) who may have lower formal educational backgrounds.
 ---
 
 ## 📂 Repository Structure
@@ -63,11 +67,6 @@ The models were refined to balance factual accuracy with readability using the f
 *   **Mistral-7B-Instruct-v0.3:**
     *   Rank $r = 8$, $\alpha = 16$, Dropout $= 0.05$.
     *   1.5 Epochs, Learning Rate $1\times10^{-5}$.
-
-### Patient-Centric Design
-Prompts were engineered to target specific health literacy levels in Hong Kong:
-*   **Form 3-5:** Optimized for the general adult population (9 years of compulsory education).
-*   **Primary 6:** Optimized for older adults (65+) who may have lower formal educational backgrounds.
 
 ---
 

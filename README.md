@@ -8,10 +8,6 @@ To run the 2-step pipeline (Mistral simplification followed by NLLB translation)
 ## 🛡️ Privacy Note
 The QEH dataset used in the refinement phase is anonymized. Patient identifiers, HKID numbers, and HA case numbers have been removed to comply with patient-data confidentiality standards.
 
-## 📄 References
-*   `Screenshot 2026-04-29 at 15.39.43.jpg` (Repository Snapshot)
-*   `thesis_draftHere is the comprehensive, GitHub-ready Markdown for your README. It incorporates the specific file structure from your screenshots, the technical details from your thesis draft, and your Hugging Face links.
-
 ***
 
 # AI-Assisted Radiology Report Simplification and Translation

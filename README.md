@@ -68,6 +68,12 @@ The models were refined to balance factual accuracy with readability using the f
     *   Rank $r = 8$, $\alpha = 16$, Dropout $= 0.05$.
     *   1.5 Epochs, Learning Rate $1\times10^{-5}$.
 
+### 🖥️ Computational Resources
+Fine-tuning and inference were performed on the **HKU SBMS HPC** (`hku-sbms-spgpu`) environment.
+*   **Hardware:** 3x NVIDIA GeForce RTX 2080 Ti.
+*   **VRAM:** 11 GB per GPU.
+*   **Software:** CUDA Version 12.4 with Driver Version 550.127.05.
+*   **Optimization:** The choice of LoRA was critical to fit the 4B and 7B parameter models within the 11 GB VRAM constraints of the RTX 2080 Ti hardware.
 ---
 
 ## 📊 Evaluation & Safety
